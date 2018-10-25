@@ -59,29 +59,40 @@
                                     <action selector="cameraButton_TouchUpInside:" destination="xsr-X7-qtX" eventType="touchUpInside" id="eFz-SH-fve"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VLF-Sh-1wh">
-                                <rect key="frame" x="16" y="20" width="34" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VLF-Sh-1wh">
+                                <rect key="frame" x="20" y="40" width="34" height="30"/>
                                 <state key="normal" title="Back"/>
                                 <connections>
                                     <segue destination="BYZ-38-t0r" kind="show" id="clv-EL-NNw"/>
                                 </connections>
                             </button>
+                            <view hidden="YES" alpha="0.69999999999999996" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="flY-cf-iTm">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="VLF-Sh-1wh" firstAttribute="top" secondItem="fd6-vZ-fdz" secondAttribute="top" constant="20" id="EhW-vd-WNO"/>
+                            <constraint firstItem="flY-cf-iTm" firstAttribute="trailing" secondItem="fd6-vZ-fdz" secondAttribute="trailing" id="Hdg-p4-D1Q"/>
+                            <constraint firstItem="flY-cf-iTm" firstAttribute="top" secondItem="egU-BS-S5r" secondAttribute="top" id="Kck-gV-ySp"/>
                             <constraint firstItem="fd6-vZ-fdz" firstAttribute="bottom" secondItem="rWH-KZ-Oqn" secondAttribute="bottom" constant="20" id="MJs-AK-Q3A"/>
+                            <constraint firstItem="flY-cf-iTm" firstAttribute="bottom" secondItem="fd6-vZ-fdz" secondAttribute="bottom" id="Osp-DJ-Lr5"/>
+                            <constraint firstItem="flY-cf-iTm" firstAttribute="leading" secondItem="fd6-vZ-fdz" secondAttribute="leading" id="XPn-85-i7H"/>
+                            <constraint firstItem="VLF-Sh-1wh" firstAttribute="leading" secondItem="fd6-vZ-fdz" secondAttribute="leading" constant="20" id="Yk3-P3-0qq"/>
                             <constraint firstItem="rWH-KZ-Oqn" firstAttribute="centerX" secondItem="egU-BS-S5r" secondAttribute="centerX" id="zGm-pL-Tii"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="fd6-vZ-fdz"/>
                     </view>
                     <connections>
+                        <outlet property="alphaLayer" destination="flY-cf-iTm" id="V3x-kl-J1R"/>
+                        <outlet property="startButton" destination="rWH-KZ-Oqn" id="jSF-aA-hO0"/>
                         <segue destination="hda-ep-JO7" kind="presentation" identifier="show_segue" id="zwn-vj-nfs"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3CP-ru-liN" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1402" y="27"/>
+            <point key="canvasLocation" x="1400.8" y="26.53673163418291"/>
         </scene>
         <!--Video View Controller-->
         <scene sceneID="jTh-qD-EOR">

@@ -8,15 +8,28 @@
 
 import UIKit
 import AVFoundation
+import Photos
 
-class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
+
+class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     
+    
+    
+    @IBOutlet weak var startButton: UIButton!
+    @IBOutlet weak var alphaLayer: UIView!
     var captureSession = AVCaptureSession()
     var frontCamera : AVCaptureDevice?
     
-    var videoOutput = AVCaptureVideoDataOutput()
+    //var videoOutput = AVCaptureVideoDataOutput()
+    var videoOutput = AVCaptureMovieFileOutput()
+
+
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
     var cameraOrientation: UIDeviceOrientation?
+    var isRecording = false
+    var maxVideoRecordTime = 6000
+    var block:UIView!
+
 
     
 //    var fileOutput : AVCaptureMovieFileOutput! //change the orientation to landscape
@@ -24,6 +37,9 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        //alphaLayer.isHidden=true
+        self.view.bringSubviewToFront(startButton)
+        
 
         // Start the camera
         // **********************
@@ -41,6 +57,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
         setupInputOutput()
         setupPreviewLayer()
         startRunningCaptureSession()
+
     }
     
     
@@ -60,22 +77,21 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
             captureSession.addInput(captureDeviceInput)
             
             // Output
-            videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as AnyHashable as! String: NSNumber(value: kCVPixelFormatType_32BGRA)]
-            videoOutput.alwaysDiscardsLateVideoFrames = true
+            //videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as AnyHashable as! String: NSNumber(value: kCVPixelFormatType_32BGRA)]
+            //videoOutput.alwaysDiscardsLateVideoFrames = true
+            //let queue = DispatchQueue(label: "com.liang")
+            //videoOutput.setSampleBufferDelegate(self, queue: queue)
+            
             if captureSession.canAddOutput(videoOutput) {
                 captureSession.addOutput(videoOutput)
             }
-            captureSession.commitConfiguration()
-            
-            let queue = DispatchQueue(label: "com.liang")
-            videoOutput.setSampleBufferDelegate(self, queue: queue)
+
             
             guard let connection = videoOutput.connection(with: AVMediaType.video) else{return}
             connection.videoOrientation = currentVideoOrientation()
             if (connection.isVideoStabilizationSupported) {
                 connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationMode.auto
             }
-            
             
         } catch{
             print(error)
@@ -108,6 +124,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     
     
     func startRunningCaptureSession(){
+        //captureSession.commitConfiguration()
         captureSession.startRunning()
     }
     
@@ -115,9 +132,34 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     
     @IBAction func cameraButton_TouchUpInside(_ sender: Any) {
         //performSegue(withIdentifier: "show_segue", sender: nil)
-        
+        if !isRecording {
+            //record new video
+            print("button pressed")
+            guard let outputURL = self.applicationDocumentsDirectory()?.appendingPathComponent("video").appendingPathExtension("mov") else {return}
+            print(outputURL)
+            videoOutput.startRecording(to: outputURL, recordingDelegate: self)
+            self.isRecording = true
+            
+            //********
+            block = UILabel(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 40))
+            //block.center.y = self.view.bounds.height / 2
+            block.backgroundColor = UIColor.white
+            self.view.addSubview(block)
+            self.view.bringSubviewToFront(block)
+            alphaLayer.isHidden = false
+            print("GGG")
+            
+            UIView.animate(withDuration: 4, delay: 0, animations: {
+                self.block.center.y += UIScreen.main.bounds.height - 40
+            }, completion: nil)
+            //*******
+        } else {
+            //stop the camera recording
+            videoOutput.stopRecording()
+            self.isRecording = false
+            print("recording stopped")
+        }
     }
-    
     
 //    // MARK: Sample buffer to UIImage conversion
 //    private func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage? {
@@ -127,10 +169,65 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
 //        return UIImage(cgImage: cgImage)
 //    }
     
+    func getImageFromSampleBuffer(samplerBuffer: CMSampleBuffer) -> UIImage? {
+        if let pixelBuffer = CMSampleBufferGetImageBuffer(samplerBuffer){
+            let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+            let context = CIContext()
+            let imageRect = CGRect(x: 0, y: 0, width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer))
+            
+            if let image = context.createCGImage(ciImage, from: imageRect){
+                return UIImage(cgImage: image, scale: UIScreen.main.scale, orientation: .right)
+            }
+        }
+        return nil
+    }
+    
+    
+    
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+            if (error != nil) {
+                print("Error recording movie: \(error!.localizedDescription)")
+            }
+        print("finished")
+        
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: outputFileURL)
+        }) { saved, error in
+            if saved {
+                let alertController = UIAlertController(title: "Your video was successfully saved", message: nil, preferredStyle: .alert)
+                let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                alertController.addAction(defaultAction)
+                self.present(alertController, animated: true, completion: nil)
+            }
+        }
+
+        
+
+        //performSegue(withIdentifier: "show_segue", sender: nil)
+        }
+    
+    func capture(_ captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAt fileURL: URL!, fromConnections connections: [Any]!) {
+
+    }
+
+    
     
     // MARK: AVCaptureVideoDataOutputSampleBufferDelegate
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
         // called all the time
+        print(videoOutput)
+        print("recording finished")
+    }
+    
+    
+
+    
+    
+    
+        
+    // helper func
+    func applicationDocumentsDirectory() -> URL?{
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last
     }
     
 
