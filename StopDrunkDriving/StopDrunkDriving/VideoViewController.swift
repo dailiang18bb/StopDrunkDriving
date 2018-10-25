@@ -10,10 +10,19 @@ import UIKit
 
 class VideoViewController: UIViewController {
 
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+    }
+    
+    @IBAction func backButton_TouchUpInside(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func saveButton_TouchUpInside(_ sender: Any) {
     }
     
 
