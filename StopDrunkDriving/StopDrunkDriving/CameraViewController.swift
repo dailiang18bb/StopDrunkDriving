@@ -149,8 +149,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             alphaLayer.isHidden = false
             print("GGG")
             
-            UIView.animate(withDuration: 4, delay: 0, animations: {
-                self.block.center.y += UIScreen.main.bounds.height - 40
+            UIView.animate(withDuration: 8, delay: 0, options: .autoreverse,animations: {
+                self.block.center.y += UIScreen.main.bounds.height
             }, completion: nil)
             //*******
         } else {
