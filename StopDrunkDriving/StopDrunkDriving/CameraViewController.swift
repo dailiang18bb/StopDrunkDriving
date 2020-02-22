@@ -195,7 +195,9 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         }) { saved, error in
             if saved {
                 let alertController = UIAlertController(title: "Your video was successfully saved", message: nil, preferredStyle: .alert)
-                let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                let defaultAction = UIAlertAction(title: "OK", style: .default, handler: {ACTION in
+                    self.performSegue(withIdentifier: "show_segue", sender: nil)
+                })
                 alertController.addAction(defaultAction)
                 self.present(alertController, animated: true, completion: nil)
             }
